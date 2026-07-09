@@ -7,6 +7,7 @@ using AIUsageHub.Services;
 using AIUsageHub.Stores;
 using AIUsageHub.Views;
 using AIUsageHub.ViewModels;
+using Velopack;
 
 namespace AIUsageHub;
 
@@ -20,6 +21,15 @@ public partial class App : Application
     private RefreshService? _refreshService;
     private LocalApiService? _localApi;
     private SettingsView? _settingsWindow;
+
+    public App()
+    {
+        VelopackApp.Build()
+            .OnFirstRun(v => Dispatcher.Invoke(() => MessageBox.Show(
+                "Welcome to AIUsageHub!", "Thank you for installing",
+                MessageBoxButton.OK, MessageBoxImage.Information)))
+            .Run();
+    }
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -57,6 +67,10 @@ public partial class App : Application
         _refreshService = _sp.GetRequiredService<RefreshService>();
         _localApi = _sp.GetRequiredService<LocalApiService>();
 
+        // Check for updates in background after short delay
+        var updateSvc = _sp.GetRequiredService<UpdateService>();
+        _ = CheckForUpdatesAtStartupAsync(updateSvc);
+
         // Build ViewModel
         _dashboardVm = _sp.GetRequiredService<DashboardViewModel>();
         _dashboardVm.OpenSettingsRequested = OpenSettings;
@@ -88,6 +102,19 @@ public partial class App : Application
         WindowPlacement.PositionNearTray(_popup, 410, 580);
         _popup.Show();
         Log("Startup complete");
+    }
+
+    private static async Task CheckForUpdatesAtStartupAsync(UpdateService updateService)
+    {
+        try
+        {
+            await Task.Delay(5000);
+            await updateService.CheckForUpdatesAsync();
+        }
+        catch
+        {
+            // Silently fail — user can manual-check in Settings
+        }
     }
 
     private void OpenSettings(SettingsTab initialTab)
@@ -167,6 +194,7 @@ public partial class App : Application
         // Services
         services.AddSingleton<CacheService>();
         services.AddSingleton<LocalApiService>();
+        services.AddSingleton<UpdateService>();
 
         // Providers
         ProviderFactory.RegisterAll(services);

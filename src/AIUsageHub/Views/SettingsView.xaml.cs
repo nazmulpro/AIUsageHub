@@ -40,4 +40,11 @@ public partial class SettingsView : Window
             }
         }
     }
+
+    private void OnHyperlinkClick(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+    {
+        System.Diagnostics.Process.Start(
+            new System.Diagnostics.ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+        e.Handled = true;
+    }
 }

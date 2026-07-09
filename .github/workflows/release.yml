@@ -1,0 +1,56 @@
+name: Build and Publish Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install Velopack
+        run: dotnet tool install -g vpk
+
+      - name: Publish Application
+        run: |
+          dotnet publish src/AIUsageHub/AIUsageHub.csproj `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained true `
+            --output publish
+
+      - name: Create Velopack Release
+        shell: pwsh
+        run: |
+          $VERSION = "${{ github.ref_name }}" -replace '^v', ''
+          $REPO_URL = "${{ github.server_url }}/${{ github.repository }}"
+
+          vpk pack `
+            --packId "AIUsageHub" `
+            --packTitle "AI Usage Hub" `
+            --packAuthors "Nazmul Hossain" `
+            --packVersion $VERSION `
+            --outputDir "packaged" `
+            --packDir "publish" `
+            --mainExe "AIUsageHub.exe" `
+            --releaseNotes "Full changelog: $REPO_URL/releases/tag/${{ github.ref_name }}"
+
+      - name: List Output
+        run: Get-ChildItem -Recurse packaged
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: packaged/*
+          generate_release_notes: true
+          fail_on_unmatched_files: true

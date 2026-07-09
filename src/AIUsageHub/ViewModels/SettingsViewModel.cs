@@ -18,6 +18,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly RefreshService _refreshService;
     private readonly WidgetStore _widgetStore;
     private readonly CacheService _cacheService;
+    private readonly UpdateService _updateService;
     private readonly DispatcherTimer _statusTimer;
 
     public ObservableCollection<ApiKeyRow> ApiKeys { get; } = new();
@@ -33,6 +34,27 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _showNotifications;
     [ObservableProperty] private bool _showMinimalView;
 
+    [ObservableProperty]
+    private string _currentVersion = "v1.0.0";
+
+    [ObservableProperty]
+    private string _updateStatus = "";
+
+    [ObservableProperty]
+    private bool _isCheckingForUpdates;
+
+    [ObservableProperty]
+    private bool _isDownloading;
+
+    [ObservableProperty]
+    private double _downloadProgress;
+
+    [ObservableProperty]
+    private bool _updateAvailable;
+
+    [ObservableProperty]
+    private string _newVersion = "";
+
     public bool HasStatus => _statusMessage is not null;
 
     public SettingsViewModel(
@@ -40,13 +62,15 @@ public partial class SettingsViewModel : ObservableObject
         ProviderEnableStore enableStore,
         RefreshService refreshService,
         WidgetStore widgetStore,
-        CacheService cacheService)
+        CacheService cacheService,
+        UpdateService updateService)
     {
         _config = config;
         _enableStore = enableStore;
         _refreshService = refreshService;
         _widgetStore = widgetStore;
         _cacheService = cacheService;
+        _updateService = updateService;
 
         _statusTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
         _statusTimer.Tick += (_, _) =>
@@ -66,6 +90,7 @@ public partial class SettingsViewModel : ObservableObject
         _launchAtStartup = config.Settings.LaunchAtStartup;
         _showNotifications = config.Settings.ShowNotifications;
         _showMinimalView = config.Settings.ShowMinimalView;
+        _currentVersion = $"v{_updateService.CurrentVersion}";
     }
 
     partial void OnThemeChanged(ThemeMode value)
@@ -130,6 +155,73 @@ public partial class SettingsViewModel : ObservableObject
 
     [RelayCommand]
     private void SetTab(SettingsTab tab) => SelectedTab = tab;
+
+    [RelayCommand]
+    private async Task CheckForUpdatesAsync()
+    {
+        if (IsCheckingForUpdates) return;
+
+        IsCheckingForUpdates = true;
+        UpdateStatus = "Checking for updates...";
+        UpdateAvailable = false;
+
+        try
+        {
+            var updateInfo = await _updateService.CheckForUpdatesAsync();
+
+            if (updateInfo != null)
+            {
+                NewVersion = updateInfo.TargetFullRelease.Version.ToString();
+                UpdateStatus = $"Version {NewVersion} is available!";
+                UpdateAvailable = true;
+            }
+            else
+            {
+                UpdateStatus = "You're up to date!";
+            }
+        }
+        catch (Exception ex)
+        {
+            UpdateStatus = $"Check failed: {ex.Message}";
+        }
+        finally
+        {
+            IsCheckingForUpdates = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task InstallUpdateAsync()
+    {
+        if (IsDownloading) return;
+
+        IsDownloading = true;
+        UpdateStatus = "Downloading update...";
+
+        try
+        {
+            var progress = new Action<int>(p =>
+            {
+                DownloadProgress = p;
+                UpdateStatus = $"Downloading... {p}%";
+            });
+
+            await _updateService.DownloadUpdateAsync(progress);
+
+            UpdateStatus = "Restarting to apply update...";
+            await Task.Delay(1000);
+
+            _updateService.ApplyUpdateAndRestart();
+        }
+        catch (Exception ex)
+        {
+            UpdateStatus = $"Download failed: {ex.Message}";
+        }
+        finally
+        {
+            IsDownloading = false;
+        }
+    }
 
     [RelayCommand]
     private void SaveSettings()
