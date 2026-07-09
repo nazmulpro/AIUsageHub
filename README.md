@@ -2,6 +2,8 @@
 
 **AIUsageHub is a Windows app which monitors usage, quotas, and spending across popular AI coding services in real time.**
 
+<img src="image.png" alt="App Screenshot">
+
 ## Supported Providers
 
 - **Claude** (Anthropic) — session limits, weekly usage, spend
