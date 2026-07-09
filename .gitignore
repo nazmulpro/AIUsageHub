@@ -40,6 +40,9 @@ packages/
 publish/
 packaged/
 
+## Documentation
+publishing-guide.md
+
 ## OS files
 Thumbs.db
 *.DS_Store
