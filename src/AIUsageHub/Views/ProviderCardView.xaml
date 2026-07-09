@@ -1,0 +1,161 @@
+<UserControl x:Class="AIUsageHub.Views.ProviderCardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:AIUsageHub.Views"
+             xmlns:converters="clr-namespace:AIUsageHub.Converters"
+             xmlns:svgc="clr-namespace:SharpVectors.Converters;assembly=SharpVectors.Converters.Wpf"
+             Height="Auto">
+
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolVis"/>
+
+        <DataTemplate x:Key="MetricLineTemplate">
+            <StackPanel>
+                <!-- Progress metric -->
+                <local:MetricBarControl Metric="{Binding Line}"
+                                        Visibility="{Binding IsProgress, Converter={StaticResource BoolVis}}"/>
+
+                <!-- Values metric (spend + tokens) -->
+                <StackPanel Margin="0,4,0,4"
+                            Visibility="{Binding IsValues, Converter={StaticResource BoolVis}}">
+                    <TextBlock Text="{Binding Label}"
+                               FontSize="{DynamicResource FontSizeSmall}"
+                               Foreground="{DynamicResource TextTertiary}"
+                               FontFamily="{DynamicResource FontFamily}"
+                               Margin="0,0,0,2"/>
+                    <TextBlock FontSize="{DynamicResource FontSizeBody}"
+                               Foreground="{DynamicResource TextPrimary}"
+                               FontFamily="{DynamicResource FontFamily}">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}{0} · {1}">
+                                <Binding Path="DollarText"/>
+                                <Binding Path="TokenText"/>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- Text metric -->
+                <TextBlock Text="{Binding TextValue}"
+                           FontSize="{DynamicResource FontSizeBody}"
+                           Foreground="{DynamicResource TextSecondary}"
+                           FontFamily="{DynamicResource FontFamily}"
+                           Margin="0,4,0,4"
+                           Visibility="{Binding IsText, Converter={StaticResource BoolVis}}"/>
+
+                <!-- Badge metric -->
+                <Border CornerRadius="4" Padding="8,3"
+                        Background="{DynamicResource BgBarTrack}"
+                        Margin="0,4,0,4"
+                        HorizontalAlignment="Left"
+                        Visibility="{Binding IsBadge, Converter={StaticResource BoolVis}}">
+                    <TextBlock Text="{Binding BadgeText}"
+                               FontSize="{DynamicResource FontSizeSmall}"
+                               Foreground="{DynamicResource TextSecondary}"
+                               FontFamily="{DynamicResource FontFamily}"/>
+                </Border>
+            </StackPanel>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Border Background="{DynamicResource BgCard}"
+            CornerRadius="10"
+            Margin="0,8,0,0"
+            Padding="14,12,14,12">
+        <StackPanel>
+            <!-- Provider Header -->
+            <Grid Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Brand logo -->
+                <svgc:SvgViewbox Grid.Column="0" Source="{Binding BrandIcon}"
+                                Width="18" Height="18"
+                                VerticalAlignment="Center" Margin="0,0,8,0"/>
+
+                <!-- Provider name + plan -->
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding ProviderName}"
+                               FontSize="{DynamicResource FontSizeSubtitle}"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextPrimary}"
+                               FontFamily="{DynamicResource FontFamily}"/>
+                </StackPanel>
+
+                <!-- Plan badge -->
+                <Border Grid.Column="2" CornerRadius="4" Padding="6,2"
+                        Background="{DynamicResource BgBarTrack}"
+                        Margin="8,0,0,0"
+                        Visibility="{Binding HasPlan, Converter={StaticResource BoolVis}}">
+                    <TextBlock Text="{Binding Plan}"
+                               FontSize="{DynamicResource FontSizeSmall}"
+                               Foreground="{DynamicResource TextSecondary}"
+                               FontFamily="{DynamicResource FontFamily}"/>
+                </Border>
+
+                <!-- Star/favorite icon -->
+                <TextBlock Grid.Column="3" Text="★"
+                           FontSize="14" Foreground="{DynamicResource TextTertiary}"
+                           VerticalAlignment="Center" Margin="6,0,0,0"/>
+            </Grid>
+
+            <!-- Login action when not logged in -->
+            <Button Click="OnLoginClick"
+                    Visibility="{Binding IsLoginError, Converter={StaticResource BoolVis}}"
+                    HorizontalAlignment="Left"
+                    Margin="0,2,0,2"
+                    Padding="6,3"
+                    Cursor="Hand"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    FontFamily="{DynamicResource FontFamily}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Not logged in"
+                               FontSize="{DynamicResource FontSizeBody}"
+                               Foreground="{DynamicResource VerdictRed}"
+                               FontFamily="{DynamicResource FontFamily}"/>
+                    <TextBlock Text="  ↗ Log in"
+                               FontSize="{DynamicResource FontSizeSmall}"
+                               Foreground="{DynamicResource TextSecondary}"
+                               FontFamily="{DynamicResource FontFamily}"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Generic error state -->
+            <TextBlock Text="{Binding Error}"
+                       FontSize="{DynamicResource FontSizeBody}"
+                       Foreground="{DynamicResource VerdictRed}"
+                       FontFamily="{DynamicResource FontFamily}"
+                       Visibility="{Binding HasGenericError, Converter={StaticResource BoolVis}}"/>
+
+            <!-- Always visible metrics (first 2 lines) -->
+            <ItemsControl ItemsSource="{Binding AlwaysVisibleLines}"
+                          ItemTemplate="{StaticResource MetricLineTemplate}"/>
+
+            <!-- Additional metrics (animated expand/collapse) -->
+            <Border x:Name="AdditionalSection" ClipToBounds="True"
+                    MaxHeight="0" Visibility="Collapsed" Opacity="0">
+                <ItemsControl ItemsSource="{Binding AdditionalLines}"
+                              ItemTemplate="{StaticResource MetricLineTemplate}"/>
+            </Border>
+
+            <!-- Expand/collapse toggle chevron -->
+            <Button Click="OnToggleClick"
+                    HorizontalAlignment="Center"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Padding="0"
+                    Visibility="{Binding HasOnDemand, Converter={StaticResource BoolVis}}">
+                <TextBlock Text="{Binding ToggleText}"
+                           FontSize="16"
+                           Foreground="{DynamicResource TextTertiary}"
+                           Margin="0,6,0,0"/>
+            </Button>
+        </StackPanel>
+    </Border>
+</UserControl>

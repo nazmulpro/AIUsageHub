@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>Resources\Icons\app.ico</ApplicationIcon>
+    <AssemblyName>AIUsageHub</AssemblyName>
+    <RootNamespace>AIUsageHub</RootNamespace>
+    <Version>1.0.0</Version>
+    <Authors>AIUsageHub</Authors>
+    <Description>Track your AI coding subscriptions from a lightweight desktop dashboard</Description>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>false</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishTrimmed>false</PublishTrimmed>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="System.Net.Http" />
+    <Using Include="System.IO" />
+    <Using Include="System.Text.Json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.9" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="CredentialManagement" Version="1.0.2" />
+    <PackageReference Include="SharpVectors.Wpf" Version="1.8.5" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Icons\app.ico" />
+    <Resource Include="Resources\Providers\*.svg" />
+    <Resource Include="Resources\Styles\DarkTheme.xaml" />
+    <Resource Include="Resources\Styles\LightTheme.xaml" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,344 @@
+<Window x:Class="AIUsageHub.Views.SettingsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:models="clr-namespace:AIUsageHub.Models"
+        xmlns:converters="clr-namespace:AIUsageHub.Converters"
+        xmlns:svgc="clr-namespace:SharpVectors.Converters;assembly=SharpVectors.Converters.Wpf"
+        Title="AIUsageHub Settings"
+        Width="420" Height="520"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True">
+
+    <Window.Resources>
+        <ObjectDataProvider x:Key="ThemeModes" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:ThemeMode"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <converters:RefreshIntervalToIndexConverter x:Key="IntervalToIndex"/>
+
+        <Style x:Key="SettingLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeBody}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+        <Style x:Key="SettingDescStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeSmall}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiary}"/>
+            <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <Style x:Key="FooterButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeSmall}"/>
+            <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource BgBarTrack}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="WindowControlButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeHeader}"/>
+            <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource BgBarTrack}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Segmented tab bar -->
+        <Style x:Key="SettingsTab" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
+            <Setter Property="Padding" Value="14,5"/>
+            <Setter Property="Margin" Value="2,0,0,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource BgCardHover}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SettingsTabGeneral" TargetType="Button" BasedOn="{StaticResource SettingsTab}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedTab}" Value="{x:Static models:SettingsTab.General}">
+                    <Setter Property="Background" Value="{DynamicResource BgTabSelected}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource BorderTabSelected}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SettingsTabApiKeys" TargetType="Button" BasedOn="{StaticResource SettingsTab}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedTab}" Value="{x:Static models:SettingsTab.ApiKeys}">
+                    <Setter Property="Background" Value="{DynamicResource BgTabSelected}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource BorderTabSelected}"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Border Background="{DynamicResource BgWindow}"
+            CornerRadius="12"
+            BorderBrush="{DynamicResource BorderLight}"
+            BorderThickness="1"
+            Margin="2">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Title bar (draggable) -->
+            <Grid Grid.Row="0" Height="32"
+                  Background="Transparent"
+                  MouseLeftButtonDown="TitleBar_MouseDown">
+                <TextBlock Text="Settings"
+                           FontSize="{DynamicResource FontSizeSubtitle}"
+                           FontFamily="{DynamicResource FontFamily}"
+                           Foreground="{DynamicResource TextSecondary}"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"
+                           Margin="16,0,0,0"/>
+                <Button HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Margin="0,0,8,0"
+                        Content="&#x2715;"
+                        ToolTip="Close"
+                        Style="{StaticResource WindowControlButtonStyle}"
+                        Click="CloseButton_Click"/>
+            </Grid>
+
+            <ScrollViewer Grid.Row="1"
+                          VerticalScrollBarVisibility="Hidden"
+                          Padding="16,4,16,14">
+                <StackPanel>
+                    <!-- Segmented tab bar -->
+                    <Border Background="{DynamicResource BgBarTrack}"
+                            CornerRadius="6"
+                            Padding="3"
+                            Margin="0,0,0,14">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource SettingsTabGeneral}"
+                                    Margin="0"
+                                    Command="{Binding SetTabCommand}"
+                                    CommandParameter="{x:Static models:SettingsTab.General}">
+                                <TextBlock Text="General"
+                                           FontSize="{DynamicResource FontSizeSmall}"
+                                           FontFamily="{DynamicResource FontFamily}"/>
+                            </Button>
+                            <Button Style="{StaticResource SettingsTabApiKeys}"
+                                    Command="{Binding SetTabCommand}"
+                                    CommandParameter="{x:Static models:SettingsTab.ApiKeys}">
+                                <TextBlock Text="API Keys"
+                                           FontSize="{DynamicResource FontSizeSmall}"
+                                           FontFamily="{DynamicResource FontFamily}"/>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ================= General tab ================= -->
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTab}" Value="{x:Static models:SettingsTab.General}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <!-- Theme -->
+                        <TextBlock Text="Theme" Style="{DynamicResource SettingLabelStyle}"/>
+                        <ComboBox ItemsSource="{Binding Source={StaticResource ThemeModes}}"
+                                  SelectedItem="{Binding Theme}"
+                                  MinHeight="30"
+                                  Margin="0,0,0,12"
+                                  FontFamily="{DynamicResource FontFamily}"/>
+
+                        <!-- Refresh Interval -->
+                        <TextBlock Text="Refresh Interval" Style="{DynamicResource SettingLabelStyle}"/>
+                        <TextBlock Text="How often to poll provider APIs for updated usage data."
+                                   Style="{DynamicResource SettingDescStyle}"/>
+                        <ComboBox SelectedIndex="{Binding RefreshInterval, Converter={StaticResource IntervalToIndex}}"
+                                  MinHeight="30"
+                                  Margin="0,0,0,12"
+                                  FontFamily="{DynamicResource FontFamily}">
+                            <ComboBoxItem Content="1 minute"/>
+                            <ComboBoxItem Content="5 minutes"/>
+                            <ComboBoxItem Content="10 minutes"/>
+                            <ComboBoxItem Content="15 minutes"/>
+                        </ComboBox>
+
+                        <!-- Show Minimal View -->
+                        <CheckBox Content="Show minimal view"
+                                  IsChecked="{Binding ShowMinimalView}"
+                                  Margin="0,0,0,4"
+                                  FontFamily="{DynamicResource FontFamily}"
+                                  Foreground="{DynamicResource TextPrimary}"/>
+                        <TextBlock Text="When checked, provider cards show only 2 lines with a toggle for more details. Uncheck to show all provider information."
+                                   Style="{DynamicResource SettingDescStyle}"/>
+
+                        <!-- Launch at Startup -->
+                        <CheckBox Content="Launch at Windows startup"
+                                  IsChecked="{Binding LaunchAtStartup}"
+                                  Margin="0,16,0,0"
+                                  FontFamily="{DynamicResource FontFamily}"
+                                  Foreground="{DynamicResource TextPrimary}"/>
+                    </StackPanel>
+
+                    <!-- ================= API Keys tab ================= -->
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTab}" Value="{x:Static models:SettingsTab.ApiKeys}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <TextBlock Text="API Keys" Style="{DynamicResource SettingLabelStyle}" Margin="0,8,0,4"/>
+                        <TextBlock Text="Use these providers without their desktop apps by entering an API key."
+                                   Style="{DynamicResource SettingDescStyle}"/>
+
+                        <ItemsControl ItemsSource="{Binding ApiKeys}" Margin="0,0,0,8">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <svgc:SvgViewbox Source="{Binding BrandIcon}" Width="16" Height="16" Margin="0,0,6,0"/>
+                                            <TextBlock Text="{Binding Name}"
+                                                       FontFamily="{DynamicResource FontFamily}"
+                                                       FontSize="{DynamicResource FontSizeBody}"
+                                                       Foreground="{DynamicResource TextPrimary}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBox Grid.Column="1"
+                                                 Text="{Binding Key, UpdateSourceTrigger=PropertyChanged, Delay=300}"
+                                                 FontFamily="Consolas"
+                                                 Padding="6,4"
+                                                 Margin="6,0,6,0"
+                                                 FontSize="{DynamicResource FontSizeBody}"/>
+                                        <Button Grid.Column="2"
+                                                Content="Get key &#x2197;"
+                                                Click="OnGetKey"
+                                                Tag="{Binding GetUrl}"
+                                                Cursor="Hand"
+                                                Padding="8,4"
+                                                FontFamily="{DynamicResource FontFamily}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Fixed footer (API Keys tab only, since all other settings auto-save) -->
+            <Border Grid.Row="2"
+                    BorderBrush="{DynamicResource BorderLight}"
+                    BorderThickness="0,1,0,0"
+                    Padding="16,10,16,14">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedTab}" Value="{x:Static models:SettingsTab.ApiKeys}">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="{Binding StatusMessage}"
+                               Visibility="{Binding HasStatus, Converter={StaticResource BoolToVis}}"
+                               Foreground="#4CAF50"
+                               FontFamily="{DynamicResource FontFamily}"
+                               FontSize="{DynamicResource FontSizeBody}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                    <Button Grid.Column="1"
+                            Content="Save"
+                            Command="{Binding SaveApiKeysCommand}"
+                            Style="{DynamicResource FooterButtonStyle}"
+                            Background="{DynamicResource BgSaveButton}"
+                            Padding="16,7"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

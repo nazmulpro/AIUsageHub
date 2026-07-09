@@ -1,0 +1,67 @@
+<UserControl x:Class="AIUsageHub.Views.MetricBarControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:AIUsageHub.Converters"
+             Height="Auto">
+
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolVis"/>
+        <converters:PercentToColorConverter x:Key="VerdictColor"/>
+        <converters:ProgressFillWidthConverter x:Key="ProgressFillConverter"/>
+    </UserControl.Resources>
+
+    <StackPanel Margin="0,4,0,4">
+        <!-- Label Row -->
+        <Grid Margin="0,0,0,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0"
+                       Text="{Binding Label}"
+                       FontSize="{DynamicResource FontSizeBody}"
+                       Foreground="{DynamicResource TextPrimary}"
+                       FontFamily="{DynamicResource FontFamily}"/>
+
+            <TextBlock Grid.Column="2"
+                       Text="{Binding PercentText}"
+                       FontSize="{DynamicResource FontSizeBody}"
+                       Foreground="{DynamicResource TextSecondary}"
+                       FontFamily="{DynamicResource FontFamily}"/>
+        </Grid>
+
+        <!-- Progress Bar -->
+        <Border x:Name="Track" Height="8" CornerRadius="4"
+                Background="{DynamicResource BgBarTrack}"
+                Margin="0,0,0,4">
+            <Border Height="8" CornerRadius="4"
+                    HorizontalAlignment="Left"
+                    Background="{Binding VerdictColor, Converter={StaticResource VerdictColor}}">
+                <Border.Width>
+                    <MultiBinding Converter="{StaticResource ProgressFillConverter}">
+                        <Binding Path="ActualWidth" ElementName="Track"/>
+                        <Binding Path="Used"/>
+                        <Binding Path="Limit"/>
+                    </MultiBinding>
+                </Border.Width>
+            </Border>
+        </Border>
+
+        <!-- Pace Indicator + Countdown -->
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+            <TextBlock Text="{Binding PaceText}"
+                       FontSize="{DynamicResource FontSizeSmall}"
+                       Foreground="{DynamicResource TextTertiary}"
+                       FontFamily="{DynamicResource FontFamily}"
+                       Visibility="{Binding HasPace, Converter={StaticResource BoolVis}}"/>
+
+            <TextBlock Text="{Binding CountdownText}"
+                       FontSize="{DynamicResource FontSizeSmall}"
+                       Foreground="{DynamicResource TextSecondary}"
+                       FontFamily="{DynamicResource FontFamily}"
+                       Margin="12,0,0,0"/>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,167 @@
+<UserControl x:Class="AIUsageHub.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:AIUsageHub.Views"
+             xmlns:converters="clr-namespace:AIUsageHub.Converters"
+             Height="Auto">
+
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolVis"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0" x:Name="ContentScroller"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <ScrollViewer.Resources>
+                <Style TargetType="ScrollBar" BasedOn="{StaticResource ThinScrollBar}"/>
+            </ScrollViewer.Resources>
+            <StackPanel Margin="16,12,16,0">
+
+                <!-- Provider Cards -->
+                <ItemsControl ItemsSource="{Binding Providers}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:ProviderCardView CardData="{Binding}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Welcome / empty state -->
+                <Border Visibility="{Binding ShowWelcome, Converter={StaticResource BoolVis}}"
+                        Background="{DynamicResource BgCard}"
+                        BorderBrush="{DynamicResource BorderLight}"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="20,18"
+                        Margin="0,20,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Welcome to AIUsageHub"
+                                   FontSize="{DynamicResource FontSizeHeader}"
+                                   Foreground="{DynamicResource TextPrimary}"
+                                   FontFamily="{DynamicResource FontFamily}"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,8"/>
+                        <TextBlock Text="Track usage for Claude, Cursor, Codex and more. Most providers are detected automatically — add an API key to get started."
+                                   FontSize="{DynamicResource FontSizeBody}"
+                                   Foreground="{DynamicResource TextSecondary}"
+                                   FontFamily="{DynamicResource FontFamily}"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,14"/>
+
+                        <Border Background="{DynamicResource BgBarTrack}"
+                                CornerRadius="6"
+                                Padding="12,10"
+                                Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock FontFamily="{DynamicResource FontFamily}"
+                                           FontSize="{DynamicResource FontSizeSmall}"
+                                           Foreground="{DynamicResource TextSecondary}"
+                                           Margin="0,3">
+                                    <Run Text="1." FontWeight="SemiBold" Foreground="{DynamicResource VerdictBlue}"/>
+                                    <Run Text=" Open Settings &#x2192; API Keys"/>
+                                </TextBlock>
+                                <TextBlock FontFamily="{DynamicResource FontFamily}"
+                                           FontSize="{DynamicResource FontSizeSmall}"
+                                           Foreground="{DynamicResource TextSecondary}"
+                                           Margin="0,3">
+                                    <Run Text="2." FontWeight="SemiBold" Foreground="{DynamicResource VerdictBlue}"/>
+                                    <Run Text=" Paste a provider key (or install its desktop app)"/>
+                                </TextBlock>
+                                <TextBlock FontFamily="{DynamicResource FontFamily}"
+                                           FontSize="{DynamicResource FontSizeSmall}"
+                                           Foreground="{DynamicResource TextSecondary}"
+                                           Margin="0,3">
+                                    <Run Text="3." FontWeight="SemiBold" Foreground="{DynamicResource VerdictBlue}"/>
+                                    <Run Text=" Save and refresh to see your usage"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <Button Command="{Binding OpenApiKeysSettingsCommand}"
+                                Content="Add API Key &#x2192;"
+                                Style="{DynamicResource FooterButtonStyle}"
+                                Background="{DynamicResource BgSaveButton}"
+                                Foreground="{DynamicResource TextPrimary}"
+                                FontSize="{DynamicResource FontSizeBody}"
+                                Padding="20,8"
+                                Cursor="Hand"
+                                HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer buttons — fixed at bottom -->
+        <Grid Grid.Row="1" Margin="16,8,16,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" Content="⚙ Settings"
+                    Command="{Binding OpenSettingsCommand}"
+                    Style="{DynamicResource FooterButtonStyle}"
+                    FontFamily="{DynamicResource FontFamily}"/>
+
+            <Button Grid.Column="1"
+                    Command="{Binding RefreshCommand}"
+                    Style="{DynamicResource FooterButtonStyle}"
+                    FontFamily="{DynamicResource FontFamily}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="↻"
+                               VerticalAlignment="Center"
+                               Margin="0,0,5,0"
+                               RenderTransformOrigin="0.5,0.5">
+                        <TextBlock.RenderTransform>
+                            <RotateTransform Angle="0"/>
+                        </TextBlock.RenderTransform>
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard x:Name="RefreshSpin">
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="(TextBlock.RenderTransform).(RotateTransform.Angle)"
+                                                                     From="0" To="360"
+                                                                     Duration="0:0:1"
+                                                                     RepeatBehavior="Forever"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <RemoveStoryboard BeginStoryboardName="RefreshSpin"/>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
+                                <Setter Property="Text" Value="Refresh"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                                        <Setter Property="Text" Value="Refreshing..."/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Button>
+        </Grid>
+    </Grid>
+</UserControl>
