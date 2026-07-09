@@ -42,8 +42,7 @@ jobs:
             --packVersion $VERSION `
             --outputDir "packaged" `
             --packDir "publish" `
-            --mainExe "AIUsageHub.exe" `
-            --releaseNotes "Full changelog: $REPO_URL/releases/tag/${{ github.ref_name }}"
+            --mainExe "AIUsageHub.exe"
 
       - name: List Output
         run: Get-ChildItem -Recurse packaged
