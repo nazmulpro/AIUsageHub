@@ -26,7 +26,7 @@
 
 ## Getting Started
 
-1. Download the latest release from [Releases]()
+1. Download the latest release from [Releases](https://github.com/nazmulpro/AIUsageHub/releases)
 2. Run `AIUsageHub.exe` and install it
 3. Providers prompt for an API key in Settings
 
