@@ -23,9 +23,6 @@
 ## Tech Stack
 
 - **.NET 10** (WPF, Windows-only)
-- **MVVM** with CommunityToolkit.Mvvm
-- **Dependency Injection** via Microsoft.Extensions.DependencyInjection
-- **SharpVectors.Wpf** for SVG provider logos
 
 ## Getting Started
 
