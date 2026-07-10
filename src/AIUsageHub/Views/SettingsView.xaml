@@ -333,12 +333,11 @@
 
                         <TextBlock Text="Software Updates"
                                    Style="{DynamicResource SettingLabelStyle}"
-                                   FontSize="16" FontWeight="SemiBold"
-                                   Margin="0,10,0,5"/>
+                                   Margin="0,0,0,5"/>
 
                         <Border BorderBrush="{DynamicResource BorderLight}"
                                 BorderThickness="1" CornerRadius="8" Padding="15"
-                                Background="{DynamicResource BgBarTrack}">
+                                Background="{DynamicResource BgCard}">
                             <StackPanel>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -347,12 +346,14 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="Current Version:"
                                                VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextPrimary}"
                                                FontFamily="{DynamicResource FontFamily}"/>
                                     <TextBlock Grid.Column="1"
                                                Text="{Binding CurrentVersion}"
                                                FontWeight="Bold"
                                                Margin="10,0,0,0"
                                                VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextPrimary}"
                                                FontFamily="{DynamicResource FontFamily}"/>
                                 </Grid>
 
@@ -368,24 +369,61 @@
                                              Visibility="{Binding IsDownloading, Converter={StaticResource BoolToVis}}"/>
 
                                 <Button Command="{Binding CheckForUpdatesCommand}"
-                                        Content="Check for Updates"
-                                        Margin="0,5" Padding="10,5" Cursor="Hand"
-                                        FontFamily="{DynamicResource FontFamily}"
-                                        FontSize="{DynamicResource FontSizeBody}"/>
-
-                                <Button Command="{Binding InstallUpdateCommand}"
-                                        Content="Download &amp; Install"
-                                        Visibility="{Binding UpdateAvailable, Converter={StaticResource BoolToVis}}"
                                         Margin="0,5" Padding="10,5" Cursor="Hand"
                                         Background="{DynamicResource BgSaveButton}"
                                         FontFamily="{DynamicResource FontFamily}"
-                                        FontSize="{DynamicResource FontSizeBody}"/>
+                                        FontSize="{DynamicResource FontSizeBody}"
+                                        Foreground="{DynamicResource TextSecondary}"
+                                        BorderThickness="0">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    CornerRadius="4"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource BgBarTrack}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                    <Button.Content>
+                                        <TextBlock Text="Check for Updates"/>
+                                    </Button.Content>
+                                </Button>
+
+                                <Button Command="{Binding InstallUpdateCommand}"
+                                        Visibility="{Binding UpdateAvailable, Converter={StaticResource BoolToVis}}"
+                                        Margin="0,5" Padding="10,5" Cursor="Hand"
+                                        FontFamily="{DynamicResource FontFamily}"
+                                        FontSize="{DynamicResource FontSizeBody}"
+                                        Foreground="{DynamicResource TextSecondary}"
+                                        BorderThickness="0">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    CornerRadius="4"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource BgBarTrack}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                    <Button.Content>
+                                        <TextBlock Text="Download &amp; Install"/>
+                                    </Button.Content>
+                                </Button>
                             </StackPanel>
                         </Border>
 
                         <TextBlock Text="AIUsageHub"
                                    Style="{DynamicResource SettingLabelStyle}"
-                                   FontSize="16" FontWeight="SemiBold"
                                    Margin="0,16,0,5"/>
                         <TextBlock Text="Monitor your AI coding service usage, quotas, and spending in real time."
                                    Style="{DynamicResource SettingDescStyle}"/>
